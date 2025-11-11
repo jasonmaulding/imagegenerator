@@ -158,6 +158,93 @@ AgentForge/
 
 ---
 
+## Customizing Image Generation
+
+The backend uses fal.ai's HunyuanImage 3.0 model. You can customize the image quality and characteristics by editing `backend/server.js`.
+
+### Available Settings (IMAGE_CONFIG)
+
+Open `backend/server.js` and find the `IMAGE_CONFIG` object (around line 16):
+
+```javascript
+const IMAGE_CONFIG = {
+    width: 1280,              // Image width (512-2048)
+    height: 960,              // Image height (512-2048)
+    num_inference_steps: 30,  // Quality vs speed (20-50)
+    guidance_scale: 7.5,      // Prompt adherence (5-15)
+    output_format: 'jpeg',    // 'jpeg' or 'png'
+    enable_safety_checker: true,
+    enable_prompt_expansion: false,
+    negative_prompt: 'blurry, low quality, watermark...'
+};
+```
+
+### Parameter Guide
+
+| Parameter | Description | Recommended Range | Impact |
+|-----------|-------------|-------------------|---------|
+| **width/height** | Image dimensions in pixels | 512-2048 | Larger = better detail but slower |
+| **num_inference_steps** | AI generation iterations | 20-50 | More = better quality but slower |
+| **guidance_scale** | How strictly to follow prompt | 5-15 | Higher = more literal interpretation |
+| **output_format** | File format | jpeg, png | JPEG is faster/smaller, PNG is lossless |
+| **enable_safety_checker** | Filter inappropriate content | true/false | Keep true for production |
+| **enable_prompt_expansion** | Auto-enhance prompts with AI | true/false | May alter your intended style |
+| **negative_prompt** | What to avoid in images | Custom text | Helps prevent unwanted artifacts |
+
+### Quality Presets
+
+**Fast Mode (Cost-Effective):**
+```javascript
+num_inference_steps: 20,
+guidance_scale: 6.0,
+output_format: 'jpeg'
+```
+
+**Balanced Mode (Recommended):**
+```javascript
+num_inference_steps: 30,
+guidance_scale: 7.5,
+output_format: 'jpeg'
+```
+
+**Premium Mode (Best Quality):**
+```javascript
+num_inference_steps: 50,
+guidance_scale: 10.0,
+output_format: 'png'
+```
+
+### Common Customizations
+
+**For Portrait Photography:**
+```javascript
+negative_prompt: 'blurry, distorted face, multiple heads, disfigured, deformed'
+guidance_scale: 8.5
+```
+
+**For Architectural Shots:**
+```javascript
+negative_prompt: 'people, watermark, text, cropped, poor composition'
+guidance_scale: 9.0
+```
+
+**For Faster Generation (Testing):**
+```javascript
+width: 960,
+height: 720,
+num_inference_steps: 20
+```
+
+After making changes, restart the backend:
+```bash
+cd backend
+node server.js
+```
+
+Full API documentation: [fal.ai HunyuanImage 3.0](https://fal.ai/models/fal-ai/hunyuan-image/v3/text-to-image)
+
+---
+
 ## API Endpoints
 
 ### `POST /api/generate`
@@ -175,7 +262,9 @@ Generate AI image using HunyuanImage 3.0
 ```json
 {
   "success": true,
-  "imageUrl": "https://fal.media/files/..."
+  "imageUrl": "https://fal.media/files/...",
+  "seed": 12345678,
+  "contentType": "image/jpeg"
 }
 ```
 

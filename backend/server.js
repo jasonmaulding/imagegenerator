@@ -8,7 +8,21 @@ app.use(express.json());
 
 // ==================== CONFIGURATION ====================
 // Set your fal.ai API key here or use environment variable
+// Get your key at: https://fal.ai/dashboard/keys
 const FAL_API_KEY = process.env.FAL_API_KEY || 'YOUR_FAL_KEY_HERE';
+
+// ==================== IMAGE GENERATION SETTINGS ====================
+// These can be customized based on your needs
+const IMAGE_CONFIG = {
+    width: 1280,              // Image width in pixels
+    height: 960,              // Image height in pixels
+    num_inference_steps: 30,  // More steps = better quality but slower (20-50 recommended)
+    guidance_scale: 7.5,      // How closely to follow prompt (5-15 recommended)
+    output_format: 'jpeg',    // 'jpeg' or 'png' (jpeg is smaller/faster)
+    enable_safety_checker: true,  // Filter inappropriate content
+    enable_prompt_expansion: false, // Auto-enhance prompts with AI (may alter intent)
+    negative_prompt: 'blurry, low quality, watermark, signature, distorted, malformed'
+};
 
 if (FAL_API_KEY === 'YOUR_FAL_KEY_HERE') {
     console.warn('⚠️  WARNING: Using placeholder API key. Set FAL_API_KEY environment variable or update server.js');
@@ -27,12 +41,20 @@ app.post('/api/generate', async (req, res) => {
         console.log(`📝 Prompt: ${prompt.substring(0, 100)}...`);
 
         // Call HunyuanImage 3.0 via fal.ai
+        // Documentation: https://fal.ai/models/fal-ai/hunyuan-image/v3/text-to-image
         const result = await fal.subscribe("fal-ai/hunyuan-image/v3/text-to-image", {
             input: {
                 prompt: prompt,
-                image_size: "1280x960",
-                num_inference_steps: 30,
-                guidance_scale: 7.5
+                negative_prompt: IMAGE_CONFIG.negative_prompt,
+                image_size: {
+                    width: IMAGE_CONFIG.width,
+                    height: IMAGE_CONFIG.height
+                },
+                num_inference_steps: IMAGE_CONFIG.num_inference_steps,
+                guidance_scale: IMAGE_CONFIG.guidance_scale,
+                enable_safety_checker: IMAGE_CONFIG.enable_safety_checker,
+                output_format: IMAGE_CONFIG.output_format,
+                enable_prompt_expansion: IMAGE_CONFIG.enable_prompt_expansion
             },
             logs: true,
             onQueueUpdate: (update) => {
@@ -45,7 +67,9 @@ app.post('/api/generate', async (req, res) => {
         console.log(`✅ Image generated successfully for: ${id}`);
         res.json({
             success: true,
-            imageUrl: result.images[0].url
+            imageUrl: result.images[0].url,
+            seed: result.seed,
+            contentType: result.images[0].content_type
         });
 
     } catch (error) {
