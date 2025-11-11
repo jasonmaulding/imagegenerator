@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentForge Elite | AI Persona Generator</title>
+    <style>
+        /* LUXURY DESIGN SYSTEM */
+        :root {
+            --luxury-black: #0a0a0a;
+            --luxury-dark: #121212;
+            --luxury-card: #1c1c1c;
+            --luxury-border: #2a2a2a;
+            --luxury-gold: #c9a145;
+            --luxury-gold-muted: #b08943;
+            --luxury-white: #f7f7f7;
+            --luxury-gray: #a0a0a0;
+            --luxury-shadow: rgba(201, 161, 69, 0.15);
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-sans);
+            background: var(--luxury-black);
+            color: var(--luxury-white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .luxury-header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem 5%;
+            z-index: 1000;
+            border-bottom: 1px solid var(--luxury-border);
+        }
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .brand-logo {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--luxury-gold);
+        }
+        .nav-menu {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+        .nav-menu a {
+            color: var(--luxury-white);
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            font-weight: 400;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        .nav-menu a:hover {
+            color: var(--luxury-gold);
+        }
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--luxury-gold);
+            transition: width 0.3s ease;
+        }
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+        .hero-section {
+            margin-top: 120px;
+            padding: 100px 5%;
+            background: radial-gradient(circle at 20% 50%, rgba(201, 161, 69, 0.1) 0%, transparent 50%);
+            text-align: center;
+        }
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--luxury-white) 0%, var(--luxury-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--luxury-gray);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            font-weight: 300;
+        }
+        .luxury-panel {
+            max-width: 1200px;
+            margin: 0 auto 80px;
+            background: var(--luxury-card);
+            border-radius: 24px;
+            padding: 50px;
+            border: 1px solid var(--luxury-border);
+            box-shadow: 0 20px 60px var(--luxury-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        .luxury-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--luxury-gold), transparent);
+        }
+        .section-title {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            margin-bottom: 2.5rem;
+            color: var(--luxury-gold);
+            text-align: center;
+            letter-spacing: 2px;
+        }
+        .api-selector-luxury {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .api-option-luxury {
+            background: var(--luxury-dark);
+            border: 1px solid var(--luxury-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+        }
+        .api-option-luxury:hover {
+            border-color: var(--luxury-gold-muted);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px var(--luxury-shadow);
+        }
+        .api-option-luxury.active {
+            border-color: var(--luxury-gold);
+            background: linear-gradient(135deg, var(--luxury-dark) 0%, #2a2318 100%);
+        }
+        .api-option-luxury.active::before {
+            content: '✓';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: var(--luxury-gold);
+            font-size: 1.2rem;
+        }
+        .api-name {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            color: var(--luxury-white);
+            margin-bottom: 0.5rem;
+        }
+        .api-description {
+            font-size: 0.85rem;
+            color: var(--luxury-gray);
+            line-height: 1.5;
+        }
+        .api-badge {
+            display: inline-block;
+            background: var(--luxury-gold);
+            color: var(--luxury-black);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+        .luxury-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        .control-group-luxury {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .control-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--luxury-gray);
+            font-weight: 500;
+        }
+        select, input, textarea {
+            padding: 16px 20px;
+            background: var(--luxury-dark);
+            border: 1px solid var(--luxury-border);
+            color: var(--luxury-white);
+            border-radius: 12px;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--luxury-gold);
+            box-shadow: 0 0 0 3px var(--luxury-shadow);
+        }
+        select:hover, input:hover, textarea:hover {
+            border-color: var(--luxury-gold-muted);
+        }
+        .luxury-generate {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--luxury-gold) 0%, var(--luxury-gold-muted) 100%);
+            color: var(--luxury-black);
+            border: none;
+            border-radius: 12px;
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.4s;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+        .luxury-generate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+        .luxury-generate:hover::before {
+            left: 100%;
+        }
+        .luxury-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(201, 161, 69, 0.3);
+        }
+        .luxury-generate:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .luxury-status {
+            margin-top: 2rem;
+            padding: 1.2rem;
+            background: var(--luxury-dark);
+            border-left: 3px solid var(--luxury-gold);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--luxury-gray);
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        .luxury-status.active {
+            display: block;
+        }
+        .luxury-status.error {
+            border-left-color: #ff3366;
+        }
+        .luxury-output {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 5% 100px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        .output-card {
+            background: var(--luxury-card);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid var(--luxury-border);
+            box-shadow: 0 15px 50px var(--luxury-shadow);
+            transition: transform 0.4s;
+        }
+        .output-card:hover {
+            transform: translateY(-5px);
+        }
+        .output-title {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            color: var(--luxury-gold);
+            margin-bottom: 2rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        .profile-luxury {
+            text-align: center;
+        }
+        .profile-luxury img {
+            width: 100%;
+            max-width: 450px;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--luxury-border);
+            box-shadow: 0 10px 30px var(--luxury-shadow);
+        }
+        .agent-name {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            color: var(--luxury-white);
+            margin-bottom: 1rem;
+        }
+        .bio-luxury {
+            color: var(--luxury-gray);
+            line-height: 1.8;
+            font-size: 0.95rem;
+            text-align: left;
+            font-weight: 300;
+        }
+        .tags-luxury {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+        .tag-luxury {
+            background: var(--luxury-dark);
+            border: 1px solid var(--luxury-gold-muted);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: var(--luxury-gold);
+            font-weight: 500;
+        }
+        .gallery-luxury {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
+        }
+        .gallery-luxury img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 1px solid var(--luxury-border);
+        }
+        .gallery-luxury img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px var(--luxury-shadow);
+            border-color: var(--luxury-gold-muted);
+        }
+        .luxury-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--luxury-border);
+            border-top: 2px solid var(--luxury-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none !important;
+        }
+        @media (max-width: 1024px) {
+            .luxury-output {
+                grid-template-columns: 1fr;
+            }
+            .api-selector-luxury {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .luxury-panel {
+                padding: 30px;
+            }
+            .nav-menu {
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Luxury Header -->
+    <header class="luxury-header">
+        <div class="header-content">
+            <div class="brand-logo">AGENTFORGE</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#generator">Generator</a></li>
+                    <li><a href="#personas">Personas</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="generator">
+        <h1 class="hero-title">Elite Persona Generator</h1>
+        <p class="hero-subtitle">Craft hyper-targeted real estate identities. Works instantly with Mock Mode—no setup required!</p>
+    </section>
+
+    <!-- Control Panel -->
+    <div class="luxury-panel">
+        <h2 class="section-title">Configuration Studio</h2>
+
+        <!-- API Selector -->
+        <div class="api-selector-luxury">
+            <div class="api-option-luxury active" data-api="mock">
+                <div class="api-name">Mock Preview Mode</div>
+                <div class="api-description">Works instantly. See how it looks with placeholder images before adding real AI.</div>
+                <span class="api-badge">START HERE</span>
+            </div>
+            <div class="api-option-luxury" data-api="fal">
+                <div class="api-name">HunyuanImage 3.0 (fal.ai)</div>
+                <div class="api-description">Real AI image generation. Get a fal.ai key for photorealistic results.</div>
+            </div>
+        </div>
+
+        <!-- Form Controls -->
+        <div class="luxury-grid">
+            <div class="control-group-luxury">
+                <label class="control-label">Agent Name</label>
+                <input type="text" id="agent-name" value="Alexandra Sterling" placeholder="Enter full name">
+            </div>
+
+            <div class="control-group-luxury">
+                <label class="control-label">Market Territory</label>
+                <select id="location">
+                    <option value="nyc-luxury">Manhattan Luxury ($3M+)</option>
+                    <option value="beverly-hills">Beverly Hills Estates</option>
+                    <option value="miami-beach">Miami Beach Waterfront</option>
+                    <option value="aspen-luxury">Aspen Ski Chalets</option>
+                </select>
+            </div>
+
+            <div class="control-group-luxury">
+                <label class="control-label">Client Tier</label>
+                <select id="client-tier">
+                    <option value="ultra-luxury">Ultra-Luxury ($5M+)</option>
+                    <option value="luxury">Luxury ($1.5M-$5M)</option>
+                    <option value="premium">Premium ($500K-$1.5M)</option>
+                </select>
+            </div>
+
+            <div class="control-group-luxury">
+                <label class="control-label">Fashion House</label>
+                <select id="fashion-brand">
+                    <option value="tom-ford">Tom Ford / Brioni (Ultra-Luxury)</option>
+                    <option value="theory">Theory / MaxMara (Executive)</option>
+                    <option value="brunello">Brunello Cucinelli (Quiet Luxury)</option>
+                    <option value="ralph-lauren">Ralph Lauren (Coastal Elite)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button class="luxury-generate" onclick="generatePersona()">
+            Forge Persona
+        </button>
+
+        <!-- Status Log -->
+        <div id="status" class="luxury-status"></div>
+    </div>
+
+    <!-- Output Section -->
+    <div class="luxury-output" id="personas">
+        <div class="output-card">
+            <h3 class="output-title">Executive Profile</h3>
+            <div class="profile-luxury" id="profile-output">
+                <p style="color: var(--luxury-gray); padding: 40px 0;">Click "Forge Persona" to see your first creation</p>
+            </div>
+        </div>
+
+        <div class="output-card">
+            <h3 class="output-title">Portfolio Collection</h3>
+            <div class="gallery-luxury" id="gallery-output">
+                <!-- Gallery populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== SIMPLE CONFIGURATION ====================
+        let currentAPI = 'mock'; // Default: Mock Mode (no API key needed)
+        let isGenerating = false;
+
+        // Location Personas Database
+        const LOCATION_PERSONAS = {
+            'nyc-luxury': {
+                name: 'Manhattan Luxury',
+                style: {
+                    attire: 'tailored Tom Ford blazer, silk Hermès blouse, Bottega Veneta handbag',
+                    setting: 'Central Park South penthouse terrace, Manhattan skyline',
+                    lighting: 'soft natural light, warm city glow',
+                    demeanor: 'confident, sophisticated, commanding presence',
+                    colors: 'deep charcoal, ivory, champagne gold'
+                }
+            },
+            'beverly-hills': {
+                name: 'Beverly Hills Estates',
+                style: {
+                    attire: 'Brunello Cucinelli cashmere sweater, Loro Piana trousers, Rolex watch',
+                    setting: 'Beverly Hills mansion driveway, palm-lined street',
+                    lighting: 'bright, warm golden hour',
+                    demeanor: 'effortlessly elegant, relaxed confidence',
+                    colors: 'warm beige, sage green, cream'
+                }
+            },
+            'miami-beach': {
+                name: 'Miami Beach Waterfront',
+                style: {
+                    attire: 'Ralph Lauren linen shirt, Tom Ford sunglasses, Vilebrequin resort pants',
+                    setting: 'South Beach oceanfront terrace, Art Deco backdrop',
+                    lighting: 'vibrant coastal sunlight',
+                    demeanor: 'sophisticated leisure, approachable luxury',
+                    colors: 'crisp white, coral, navy blue'
+                }
+            },
+            'aspen-luxury': {
+                name: 'Aspen Ski Chalets',
+                style: {
+                    attire: 'Moncler puffer coat, Hermès cashmere scarf, Bogner ski pants',
+                    setting: 'snow-covered chalet deck, Rocky Mountains',
+                    lighting: 'crisp mountain light, snow reflection',
+                    demeanor: 'adventurous sophistication, elite lifestyle',
+                    colors: 'winter white, charcoal, pine green'
+                }
+            }
+        };
+
+        // API Selection
+        document.querySelectorAll('.api-option-luxury').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.api-option-luxury').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                currentAPI = this.dataset.api;
+
+                if (currentAPI === 'mock') {
+                    log('Mock Mode: Instant preview with placeholder images', 'success');
+                } else {
+                    log('Real AI Mode: Will generate actual images (requires backend setup)', 'success');
+                }
+            });
+        });
+
+        // ==================== MAIN FUNCTION ====================
+        async function generatePersona() {
+            if (isGenerating) return;
+
+            isGenerating = true;
+            const btn = document.querySelector('.luxury-generate');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="luxury-spinner"></span> Forging Persona...';
+
+            // Clear previous results
+            document.getElementById('profile-output').innerHTML = '<p style="color: var(--luxury-gray); padding: 40px 0;">Creating...</p>';
+            document.getElementById('gallery-output').innerHTML = '';
+
+            try {
+                // Get form values
+                const agentName = document.getElementById('agent-name').value;
+                const locationKey = document.getElementById('location').value;
+                const clientTier = document.getElementById('client-tier').value;
+                const fashionBrand = document.getElementById('fashion-brand').value;
+                const persona = LOCATION_PERSONAS[locationKey];
+
+                log(`Generating ${agentName} for ${persona.name}...`, 'success');
+
+                // Generate profile
+                log('Creating executive headshot...', 'success');
+                const profilePrompt = generateProfilePrompt(agentName, persona, fashionBrand, clientTier);
+                const profileImage = await generateImage(profilePrompt, 'profile');
+                const bio = generateBio(agentName, persona, clientTier);
+                displayProfile(agentName, profileImage, bio, persona, fashionBrand);
+
+                // Generate portfolio (12 images)
+                log('Creating luxury portfolio (12 images)...', 'success');
+                const portfolioPrompts = generatePortfolioPrompts(agentName, persona, fashionBrand, clientTier);
+
+                for (let i = 0; i < 12; i++) {
+                    const image = await generateImage(portfolioPrompts[i], `portfolio-${agentName}-${i}`);
+                    const img = document.createElement('img');
+                    img.src = image;
+                    img.alt = `Portfolio ${i + 1}`;
+                    img.loading = 'lazy';
+                    img.style.animationDelay = `${i * 0.1}s`;
+                    img.className = 'fade-in';
+                    document.getElementById('gallery-output').appendChild(img);
+                }
+
+                log('✨ Persona generation complete!', 'success');
+                scrollToOutput();
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                isGenerating = false;
+                btn.disabled = false;
+                btn.textContent = 'Forge Persona';
+            }
+        }
+
+        // ==================== PROMPT GENERATOR ====================
+        function generateProfilePrompt(name, persona, fashionBrand, clientTier) {
+            const brandMap = {
+                'tom-ford': 'Tom Ford suit',
+                'theory': 'Theory blazer',
+                'brunello': 'Brunello Cucinelli sweater',
+                'ralph-lauren': 'Ralph Lauren shirt'
+            };
+
+            return `Professional executive portrait of ${name}, ${persona.style.demeanor},
+            wearing ${brandMap[fashionBrand]}, ${persona.style.attire},
+            ${persona.style.setting}, ${persona.style.lighting},
+            photorealistic, 8k, shot on Phase One camera, luxury real estate agent`;
+        }
+
+        function generatePortfolioPrompts(name, persona, fashionBrand, clientTier) {
+            const scenarios = [
+                'presenting luxury penthouse with skyline views',
+                'closing deal in mahogany-paneled office',
+                'hosting exclusive broker open house',
+                'showing waterfront estate at sunset',
+                'consulting ultra-high-net-worth clients',
+                'photographing architectural masterpiece',
+                'delivering keys to VIP clients',
+                'inspecting infinity pool villa',
+                'marketing high-rise development',
+                'showing historic mansion interiors',
+                'luxury car handover ceremony',
+                'private jet property tour setup'
+            ];
+
+            return scenarios.map(scene =>
+                `Cinematic photo of luxury real estate agent ${name}, ${scene},
+                ${persona.style.attire}, ${persona.style.demeanor},
+                ${persona.style.lighting}, ${persona.style.colors},
+                photorealistic, 8k, Architectural Digest style`
+            );
+        }
+
+        function generateBio(name, persona, clientTier) {
+            const tierText = {
+                'ultra-luxury': 'specializes in ultra-luxury properties from $5M to $50M',
+                'luxury': 'focuses on luxury residential sales $1.5M-$5M',
+                'premium': 'serves discerning families and professionals $500K-$1.5M'
+            };
+
+            return `${name} is an elite real estate professional who ${tierText[clientTier]} in the ${persona.name} market. With a ${persona.style.demeanor} approach, ${name.split(' ')[0]} has built a reputation for exceptional service and market expertise. Known for ${persona.style.attire.split(',')[0]} aesthetic, ${name.split(' ')[0]} ensures an unparalleled experience that reflects the prestige of the properties represented.`;
+        }
+
+        // ==================== IMAGE GENERATION ====================
+        async function generateImage(prompt, id) {
+            // MOCK MODE: Instant placeholder images
+            if (currentAPI === 'mock') {
+                await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for realism
+                return `https://picsum.photos/seed/${encodeURIComponent(id)}/800/600`;
+            }
+
+            // REAL AI MODE: Call backend API
+            try {
+                const response = await fetch('http://localhost:3000/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, id })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.imageUrl) {
+                    return data.imageUrl;
+                } else if (data.fallback) {
+                    log('Backend unavailable, using mock images', 'error');
+                    return `https://picsum.photos/seed/${encodeURIComponent(id)}/800/600`;
+                } else {
+                    throw new Error(data.error || 'Image generation failed');
+                }
+            } catch (error) {
+                log(`Backend connection failed: ${error.message}. Using mock images.`, 'error');
+                return `https://picsum.photos/seed/${encodeURIComponent(id)}/800/600`;
+            }
+        }
+
+        // ==================== DISPLAY ====================
+        function displayProfile(name, imageUrl, bio, persona, fashionBrand) {
+            const fashionMap = {
+                'tom-ford': 'Tom Ford / Brioni',
+                'theory': 'Theory / MaxMara',
+                'brunello': 'Brunello Cucinelli',
+                'ralph-lauren': 'Ralph Lauren Purple Label'
+            };
+
+            document.getElementById('profile-output').innerHTML = `
+                <img src="${imageUrl}" alt="${name}" class="fade-in">
+                <h3 class="agent-name fade-in">${name}</h3>
+                <div class="tags-luxury fade-in">
+                    <span class="tag-luxury">${fashionMap[fashionBrand]}</span>
+                    <span class="tag-luxury">${persona.name}</span>
+                    <span class="tag-luxury">Luxury Specialist</span>
+                </div>
+                <p class="bio-luxury fade-in">${bio}</p>
+            `;
+        }
+
+        function log(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.classList.add('active');
+            if (type === 'error') statusEl.classList.add('error');
+            else statusEl.classList.remove('error');
+
+            const timestamp = new Date().toLocaleTimeString();
+            statusEl.innerHTML += `[${timestamp}] ${message}<br>`;
+            statusEl.scrollTop = statusEl.scrollHeight;
+        }
+
+        function scrollToOutput() {
+            document.querySelector('.luxury-output').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // Welcome message
+        log('🎉 AgentForge Elite Ready!', 'success');
+        log('Select Mock Mode and click "Forge Persona" to test instantly', 'success');
+    </script>
+</body>
+</html>
